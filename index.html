@@ -2,68 +2,126 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Library Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-black text-white">
-    <nav class="bg-gray-900 p-4 text-center font-bold text-lg">Library Management System</nav>
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <nav class="bg-gray-900 p-4 text-center font-bold text-lg">
+        Library Management System
+    </nav>
+
+    <section class="text-center py-6">
+        <h1 class="text-3xl font-bold">Dashboard</h1>
+        <div class="max-w-4xl mx-auto flex flex-wrap justify-center gap-4 mt-4 px-4">
+            <div class="bg-gray-800 p-4 rounded shadow-lg min-w-[200px] flex-1 max-w-[300px]">
+                <h2 class="text-xl font-bold">Total Books</h2>
+                <p id="totalBooks" class="text-2xl">0</p>
+            </div>
+            <div class="bg-gray-800 p-4 rounded shadow-lg min-w-[200px] flex-1 max-w-[300px]">
+                <h2 class="text-xl font-bold">Available Books</h2>
+                <p id="availableBooks" class="text-2xl">0</p>
+            </div>
+            <div class="bg-gray-800 p-4 rounded shadow-lg min-w-[200px] flex-1 max-w-[300px]">
+                <h2 class="text-xl font-bold">Unavailable</h2>
+                <p id="unavailableBooks" class="text-2xl">0</p>
+            </div>
+        </div>
+    </section>
 
     <section class="text-center py-10">
         <h1 class="text-3xl font-bold">Welcome to the Library</h1>
-        <p class="text-gray-400 mt-2">Manage your books efficiently and easily.</p>
-        <button id="openModal" class="mt-4 px-4 py-2 bg-white text-black rounded hover:bg-gray-300">Add New
-            Book</button>
+        <p class="text-gray-400 mt-2">
+            Manage your books efficiently and easily.
+        </p>
+        <button id="openModal" class="mt-4 px-4 py-2 bg-white text-black rounded hover:bg-gray-300">
+            Add New Book
+        </button>
     </section>
 
-    <div class="max-w-2xl mx-auto bg-gray-900 p-6 rounded-lg shadow-lg">
+    <div class="max-w-4xl mx-auto bg-gray-900 p-6 rounded-lg shadow-lg overflow-x-auto">
         <h2 class="text-2xl font-bold">Book List</h2>
-        
-        <table class="w-full border-collapse shadow-lg mt-4">
-            <thead>
-                <tr class="bg-gray-800">
-                    <th class="p-2 border border-gray-700">Title</th>
-                    <th class="p-2 border border-gray-700">Author</th>
-                    <th class="p-2 border border-gray-700">ISBN</th>
-                    <th class="p-2 border border-gray-700">Status</th>
-                    <th class="p-2 border border-gray-700">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="bookTable"></tbody>
-        </table>
+        <div class="flex gap-4 mt-2">
+            <input type="text" id="search" placeholder="Search Books..."
+                class="p-2 flex-1 bg-gray-800 text-white border border-gray-700 rounded" />
+            <select id="statusFilter" class="p-2 bg-gray-800 text-white border border-gray-700 rounded min-w-[150px]">
+                <option value="all">All Books</option>
+                <option value="Available">Available</option>
+                <option value="Unavailable">Unavailable</option>
+            </select>
+        </div>
+
+        <div class="overflow-x-auto mt-4">
+            <table class="w-full border-collapse shadow-lg">
+                <thead>
+                    <tr class="bg-gray-800">
+                        <th class="p-2 border border-gray-700 whitespace-nowrap">Title</th>
+                        <th class="p-2 border border-gray-700 whitespace-nowrap">Author</th>
+                        <th class="p-2 border border-gray-700 whitespace-nowrap">ISBN</th>
+                        <th class="p-2 border border-gray-700 whitespace-nowrap">Status</th>
+                        <th class="p-2 border border-gray-700 whitespace-nowrap">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookTable"></tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- Modal to add new boosk -->
     <div id="bookModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-96">
-            <h2 class="text-xl font-meduim mb-4" id="modalTitle">Add a New Book</h2>
+            <h2 class="text-2xl font-bold mb-4" id="modalTitle">Add a New Book</h2>
             <form id="bookForm">
-                <input type="hidden" id="editIndex" value="">
-                <input type="text" id="title" placeholder="Book Title"
-                    class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2" required>
-                <input type="text" id="author" placeholder="Author"
-                    class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2" required>
-                <input type="text" id="isbn" placeholder="ISBN"
-                    class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2" required>
-                <select id="status" class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2">
-                    <option value="Available">Available</option>
-                    <option value="Checked Out">Checked Out</option>
-                </select>
-                <div class="pt-10">
+                <input type="hidden" id="editIndex" value="" />
+                <div class="mb-3">
+                    <label for="title" class="block text-sm text-gray-400 mb-1">Title</label>
+                    <input type="text" id="title" placeholder="Enter book title"
+                        class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full text-sm" required />
+                </div>
+                <div class="mb-3">
+                    <label for="author" class="block text-sm text-gray-400 mb-1">Author</label>
+                    <input type="text" id="author" placeholder="Enter author name"
+                        class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full text-sm" required />
+                </div>
+                <div class="mb-3">
+                    <label for="isbn" class="block text-sm text-gray-400 mb-1">ISBN</label>
+                    <input type="number" id="isbn" placeholder="Enter ISBN number"
+                        class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full text-sm" required />
+                </div>
+                <div class="mb-3">
+                    <label for="status" class="block text-sm text-gray-400 mb-1">Status</label>
+                    <select id="status"
+                        class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full text-sm">
+                        <option value="Available">Available</option>
+                        <option value="Unavailable">Unavailable</option>
+                    </select>
+                </div>
+                <div class="pt-6">
                     <div class="row">
                         <button type="submit"
-                            class="px-4 py-2 bg-white text-black font-medium rounded hover:bg-gray-300 w-full">Save</button>
+                            class="px-4 py-2 bg-white text-black font-medium rounded hover:bg-gray-300 w-full text-sm">
+                            Save
+                        </button>
                     </div>
-                    <div class="row pt-5">
+                    <div class="row pt-3">
                         <button type="button" id="closeModal"
-                            class="px-4 py-2 text-white hover:bg-gray-800 rounded w-full">Cancel</button>
+                            class="px-4 py-2 text-white hover:bg-gray-800 rounded w-full text-sm">
+                            Cancel
+                        </button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script src="script.js">
+    </script>
 </body>
+
 </html>
