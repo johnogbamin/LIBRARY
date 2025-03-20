@@ -1,46 +1,106 @@
-let books = [];
-        const bookForm = document.getElementById("bookForm");
-        const bookTable = document.getElementById("bookTable");
-
-        bookForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const title = document.getElementById("title").value;
-            const author = document.getElementById("author").value;
-            const isbn = document.getElementById("isbn").value;
-            const status = document.getElementById("status").value;
-            const book = { title, author, isbn, status };
-            books.push(book);
-            renderBooks();
-            bookForm.reset();
-        });
-
-        function renderBooks() {
-            bookTable.innerHTML = "";
-            books.forEach((book, index) => {
-                bookTable.innerHTML += `
-                    <tr>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-blue-600 p-4 text-white text-center font-bold text-lg">Library Management System</nav>
+    
+    <section class="text-center py-10">
+        <h1 class="text-3xl font-bold">Welcome to the Library</h1>
+        <p class="text-gray-600 mt-2">Manage your books efficiently and easily.</p>
+    </section>
+    
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-4">Add a New Book</h2>
+        <form id="bookForm" class="mb-4">
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" id="title" placeholder="Book Title" class="p-2 border rounded" required>
+                <input type="text" id="author" placeholder="Author" class="p-2 border rounded" required>
+                <input type="text" id="isbn" placeholder="ISBN" class="p-2 border rounded" required>
+                <select id="status" class="p-2 border rounded">
+                    <option value="Available">Available</option>
+                    <option value="Checked Out">Checked Out</option>
+                </select>
+            </div>
+            <button type="submit" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded">Add Book</button>
+        </form>
+        
+        <h2 class="text-2xl font-bold mt-6">Book List</h2>
+        <input type="text" id="search" placeholder="Search Books..." class="mt-2 p-2 border w-full rounded">
+        
+        <table class="w-full bg-white border-collapse shadow-lg mt-4">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="p-2 border">Title</th>
+                    <th class="p-2 border">Author</th>
+                    <th class="p-2 border">ISBN</th>
+                    <th class="p-2 border">Status</th>
+                    <th class="p-2 border">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bookTable"></tbody>
+        </table>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const bookForm = document.getElementById("bookForm");
+            const bookTable = document.getElementById("bookTable");
+            const searchInput = document.getElementById("search");
+            
+            let books = JSON.parse(localStorage.getItem("books")) || [];
+            
+            function renderBooks() {
+                bookTable.innerHTML = "";
+                books.forEach((book, index) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
                         <td class="p-2 border">${book.title}</td>
                         <td class="p-2 border">${book.author}</td>
                         <td class="p-2 border">${book.isbn}</td>
                         <td class="p-2 border">${book.status}</td>
-                        <td class="p-2 border text-center">
-                            <button onclick="editBook(${index})" class="px-2 py-1 bg-yellow-500 text-white rounded">Edit</button>
-                            <button onclick="deleteBook(${index})" class="px-2 py-1 bg-red-600 text-white rounded">Delete</button>
+                        <td class="p-2 border">
+                            <button onclick="deleteBook(${index})" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
                         </td>
-                    </tr>`;
+                    `;
+                    bookTable.appendChild(row);
+                });
+            }
+            
+            bookForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                
+                const title = document.getElementById("title").value;
+                const author = document.getElementById("author").value;
+                const isbn = document.getElementById("isbn").value;
+                const status = document.getElementById("status").value;
+                
+                const newBook = { title, author, isbn, status };
+                books.push(newBook);
+                localStorage.setItem("books", JSON.stringify(books));
+                renderBooks();
+                bookForm.reset();
             });
-        }
-
-        function deleteBook(index) {
-            books.splice(index, 1);
+            
+            window.deleteBook = function (index) {
+                books.splice(index, 1);
+                localStorage.setItem("books", JSON.stringify(books));
+                renderBooks();
+            };
+            
+            searchInput.addEventListener("input", function () {
+                const searchTerm = searchInput.value.toLowerCase();
+                document.querySelectorAll("#bookTable tr").forEach(row => {
+                    row.style.display = row.innerText.toLowerCase().includes(searchTerm) ? "" : "none";
+                });
+            });
+            
             renderBooks();
-        }
-
-        function editBook(index) {
-            const book = books[index];
-            document.getElementById("title").value = book.title;
-            document.getElementById("author").value = book.author;
-            document.getElementById("isbn").value = book.isbn;
-            document.getElementById("status").value = book.status;
-            deleteBook(index);
-        }
+        });
+    </script>
+</body>
+</html>
