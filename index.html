@@ -1,39 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Management System</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Library Management System</h1>
-        <form id="book-form">
-            <input type="text" id="title" placeholder="Book Title" required>
-            <input type="text" id="author" placeholder="Author" required>
-            <input type="text" id="isbn" placeholder="ISBN" required>
-            <select id="availability">
-                <option value="Available">Available</option>
-                <option value="Unavailable">Unavailable</option>
-            </select>
-            <button type="submit">Add Book</button>
-        </form>
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>ISBN</th>
-                    <th>Availability</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="book-list"></tbody>
-        </table>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+let books = [];
+        const bookForm = document.getElementById("bookForm");
+        const bookTable = document.getElementById("bookTable");
 
+        bookForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const title = document.getElementById("title").value;
+            const author = document.getElementById("author").value;
+            const isbn = document.getElementById("isbn").value;
+            const status = document.getElementById("status").value;
+            const book = { title, author, isbn, status };
+            books.push(book);
+            renderBooks();
+            bookForm.reset();
+        });
 
+        function renderBooks() {
+            bookTable.innerHTML = "";
+            books.forEach((book, index) => {
+                bookTable.innerHTML += `
+                    <tr>
+                        <td class="p-2 border">${book.title}</td>
+                        <td class="p-2 border">${book.author}</td>
+                        <td class="p-2 border">${book.isbn}</td>
+                        <td class="p-2 border">${book.status}</td>
+                        <td class="p-2 border text-center">
+                            <button onclick="editBook(${index})" class="px-2 py-1 bg-yellow-500 text-white rounded">Edit</button>
+                            <button onclick="deleteBook(${index})" class="px-2 py-1 bg-red-600 text-white rounded">Delete</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function deleteBook(index) {
+            books.splice(index, 1);
+            renderBooks();
+        }
+
+        function editBook(index) {
+            const book = books[index];
+            document.getElementById("title").value = book.title;
+            document.getElementById("author").value = book.author;
+            document.getElementById("isbn").value = book.isbn;
+            document.getElementById("status").value = book.status;
+            deleteBook(index);
+        }
