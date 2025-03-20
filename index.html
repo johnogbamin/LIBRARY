@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-black text-white">
     <nav class="bg-gray-900 p-4 text-center font-bold text-lg">Library Management System</nav>
-    
+
     <section class="text-center py-10">
         <h1 class="text-3xl font-bold">Welcome to the Library</h1>
         <p class="text-gray-400 mt-2">Manage your books efficiently and easily.</p>
-        <button id="openModal" class="mt-4 px-4 py-2 bg-white text-black rounded hover:bg-gray-300">Add New Book</button>
+        <button id="openModal" class="mt-4 px-4 py-2 bg-white text-black rounded hover:bg-gray-300">Add New
+            Book</button>
     </section>
-    
-    <div class="max-w-4xl mx-auto bg-gray-900 p-6 rounded-lg shadow-lg">
+
+    <div class="max-w-2xl mx-auto bg-gray-900 p-6 rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold">Book List</h2>
-        <input type="text" id="search" placeholder="Search Books..." class="mt-2 p-2 w-full bg-gray-800 text-white border border-gray-700 rounded">
         
         <table class="w-full border-collapse shadow-lg mt-4">
             <thead>
@@ -33,119 +35,35 @@
         </table>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal to add new boosk -->
     <div id="bookModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-96">
-            <h2 class="text-2xl font-bold mb-4" id="modalTitle">Add a New Book</h2>
+            <h2 class="text-xl font-meduim mb-4" id="modalTitle">Add a New Book</h2>
             <form id="bookForm">
                 <input type="hidden" id="editIndex" value="">
-                <input type="text" id="title" placeholder="Book Title" class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2" required>
-                <input type="text" id="author" placeholder="Author" class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2" required>
-                <input type="text" id="isbn" placeholder="ISBN" class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2" required>
+                <input type="text" id="title" placeholder="Book Title"
+                    class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2" required>
+                <input type="text" id="author" placeholder="Author"
+                    class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2" required>
+                <input type="text" id="isbn" placeholder="ISBN"
+                    class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2" required>
                 <select id="status" class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full mb-2">
                     <option value="Available">Available</option>
                     <option value="Checked Out">Checked Out</option>
                 </select>
-                <div class="flex justify-between">
-                    <button type="submit" class="px-4 py-2 bg-white text-black rounded hover:bg-gray-300">Save</button>
-                    <button type="button" id="closeModal" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700">Cancel</button>
+                <div class="pt-10">
+                    <div class="row">
+                        <button type="submit"
+                            class="px-4 py-2 bg-white text-black font-medium rounded hover:bg-gray-300 w-full">Save</button>
+                    </div>
+                    <div class="row pt-5">
+                        <button type="button" id="closeModal"
+                            class="px-4 py-2 text-white hover:bg-gray-800 rounded w-full">Cancel</button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
-    
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const bookForm = document.getElementById("bookForm");
-            const bookTable = document.getElementById("bookTable");
-            const searchInput = document.getElementById("search");
-            const bookModal = document.getElementById("bookModal");
-            const openModal = document.getElementById("openModal");
-            const closeModal = document.getElementById("closeModal");
-            const modalTitle = document.getElementById("modalTitle");
-            const editIndex = document.getElementById("editIndex");
-
-            let books = JSON.parse(localStorage.getItem("books")) || [];
-
-            function renderBooks() {
-                bookTable.innerHTML = "";
-                books.forEach((book, index) => {
-                    const row = document.createElement("tr");
-                    row.classList.add("hover:bg-gray-700");
-                    row.innerHTML = `
-                        <td class="p-2 border border-gray-700">${book.title}</td>
-                        <td class="p-2 border border-gray-700">${book.author}</td>
-                        <td class="p-2 border border-gray-700">${book.isbn}</td>
-                        <td class="p-2 border border-gray-700">${book.status}</td>
-                        <td class="p-2 border border-gray-700">
-                            <button onclick="editBook(${index})" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700">Edit</button>
-                            <button onclick="deleteBook(${index})" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">Delete</button>
-                        </td>
-                    `;
-                    bookTable.appendChild(row);
-                });
-            }
-
-            bookForm.addEventListener("submit", function (event) {
-                event.preventDefault();
-                const title = document.getElementById("title").value;
-                const author = document.getElementById("author").value;
-                const isbn = document.getElementById("isbn").value;
-                const status = document.getElementById("status").value;
-
-                if (editIndex.value === "") {
-                    books.push({ title, author, isbn, status });
-                } else {
-                    books[editIndex.value] = { title, author, isbn, status };
-                }
-                localStorage.setItem("books", JSON.stringify(books));
-                renderBooks();
-                bookModal.classList.add("hidden");
-                bookForm.reset();
-                editIndex.value = "";
-            });
-
-            window.editBook = function (index) {
-                const book = books[index];
-                document.getElementById("title").value = book.title;
-                document.getElementById("author").value = book.author;
-                document.getElementById("isbn").value = book.isbn;
-                document.getElementById("status").value = book.status;
-                editIndex.value = index;
-                modalTitle.textContent = "Edit Book";
-                bookModal.classList.remove("hidden");
-            };
-
-            window.deleteBook = function (index) {
-    if (confirm("Are you sure you want to delete this book?")) {
-        books.splice(index, 1);
-        localStorage.setItem("books", JSON.stringify(books));
-        renderBooks();
-    }
-};
-
-            openModal.addEventListener("click", () => {
-                modalTitle.textContent = "Add a New Book";
-                bookForm.reset();
-                editIndex.value = "";
-                bookModal.classList.remove("hidden");
-            });
-
-            closeModal.addEventListener("click", () => {
-                bookModal.classList.add("hidden");
-            });
-
-            renderBooks();
-        });
-
-
-        window.deleteBook = function (index) {
-    if (confirm("Are you sure you want to delete this book?")) {
-        books.splice(index, 1);
-        localStorage.setItem("books", JSON.stringify(books));
-        renderBooks();
-    }
-};
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
