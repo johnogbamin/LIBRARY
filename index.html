@@ -1,127 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
 </head>
-
-<body class="bg-black text-white">
-    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
-
-    <nav class="bg-gray-900 p-4 text-center font-bold text-lg">
-        Library Management System
+<body class="bg-gradient-to-br from-slate-50 to-slate-100">
+    <nav class="bg-white shadow-sm border-b border-slate-200">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">📒</span>
+                    <h1 class="text-xl font-semibold gradient-text">LibraryHub</h1>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <a href="index.html" class="text-sm text-slate-900 font-medium">Home</a>
+                    <a href="catalog.html" class="text-sm text-slate-600 hover:text-slate-900 transition-colors">Catalog</a>
+                    <a href="library.html" class="text-sm text-slate-600 hover:text-slate-900 transition-colors">Library</a>
+                </div>
+            </div>
+        </div>
     </nav>
 
-    <section class="text-center py-6">
-        <h1 class="text-3xl font-bold">Dashboard</h1>
-        <div class="max-w-4xl mx-auto flex flex-wrap justify-center gap-4 mt-4 px-4">
-            <div class="bg-gray-800 p-4 rounded shadow-lg min-w-[200px] flex-1 max-w-[300px]">
-                <h2 class="text-xl font-bold">Total Books</h2>
-                <p id="totalBooks" class="text-2xl">0</p>
-            </div>
-            <div class="bg-gray-800 p-4 rounded shadow-lg min-w-[200px] flex-1 max-w-[300px]">
-                <h2 class="text-xl font-bold">Available Books</h2>
-                <p id="availableBooks" class="text-2xl">0</p>
-            </div>
-            <div class="bg-gray-800 p-4 rounded shadow-lg min-w-[200px] flex-1 max-w-[300px]">
-                <h2 class="text-xl font-bold">Unavailable</h2>
-                <p id="unavailableBooks" class="text-2xl">0</p>
+    <section class="bg-[url('person.avif')] bg-cover bg-center h-[90vh] flex items-center justify-center text-white">
+        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+        <div class="relative container mx-auto text-center z-10 px-4">
+            <h1 class="text-4xl md:text-5xl font-semibold mb-4">
+                Streamlined Library Management
+            </h1>
+            <p class="text-lg md:text-xl mb-8 max-w-xl mx-auto text-slate-200">
+                Effortlessly manage your books, authors, genres, and more with our intuitive system.
+            </p>
+            <a href="library.html" class="inline-block px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-md shadow-sm transition-all duration-300">
+                Start Managing Your Library
+            </a>
+        </div>
+    </section>
+
+    <section class="py-16 bg-white">
+        <div class="container mx-auto text-center px-4">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-6">Key Features</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="p-6 bg-slate-50 rounded-lg shadow-sm border border-slate-200">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50 text-blue-600 mb-4">
+                        📚
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-2">Organize Books</h3>
+                    <p class="text-sm text-slate-600">Manage books with ease, using categories, genres, and authors.</p>
+                </div>
+                <div class="p-6 bg-slate-50 rounded-lg shadow-sm border border-slate-200">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50 text-blue-600 mb-4">
+                        🛠️
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-2">Edit Details</h3>
+                    <p class="text-sm text-slate-600">Quickly edit book details like title, author, genre, and more.</p>
+                </div>
+                <div class="p-6 bg-slate-50 rounded-lg shadow-sm border border-slate-200">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50 text-blue-600 mb-4">
+                        🔍
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-2">Advanced Search</h3>
+                    <p class="text-sm text-slate-600">Find books effortlessly using filters by title, author, or genre.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <section class="text-center py-10">
-        <h1 class="text-3xl font-bold">Welcome to the Library</h1>
-        <p class="text-gray-400 mt-2">
-            Manage your books efficiently and easily.
+    <section class="bg-slate-800 py-12">
+        <div class="container mx-auto text-center px-4">
+            <h2 class="text-2xl font-semibold text-white mb-4">Start Managing Your Library Today</h2>
+            <p class="text-lg mb-8 max-w-2xl mx-auto text-slate-300">
+                Our system is designed to make library management effortless and organized. Get started now.
+            </p>
+            <a href="library.html" class="inline-block px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-md shadow-sm transition-all duration-300">
+                Go to Library Management
+            </a>
+        </div>
+    </section>
+
+    <footer class="bg-slate-800 text-slate-300 text-center py-6">
+        <p class="text-sm">
+            © 2025 Library Management. All Rights Reserved.
         </p>
-        <button id="openModal" class="mt-4 px-4 py-2 bg-white text-black rounded hover:bg-gray-300">
-            Add New Book
-        </button>
-    </section>
+    </footer>
 
-    <div class="max-w-4xl mx-auto bg-gray-900 p-6 rounded-lg shadow-lg overflow-x-auto">
-        <h2 class="text-2xl font-bold">Book List</h2>
-        <div class="flex gap-4 mt-2">
-            <input type="text" id="search" placeholder="Search Books..."
-                class="p-2 flex-1 bg-gray-800 text-white border border-gray-700 rounded" />
-            <select id="statusFilter" class="p-2 bg-gray-800 text-white border border-gray-700 rounded min-w-[150px]">
-                <option value="all">All Books</option>
-                <option value="Available">Available</option>
-                <option value="Unavailable">Unavailable</option>
-            </select>
-        </div>
-
-        <div class="overflow-x-auto mt-4">
-            <table class="w-full border-collapse shadow-lg">
-                <thead>
-                    <tr class="bg-gray-800">
-                        <th class="p-2 border border-gray-700 whitespace-nowrap">Title</th>
-                        <th class="p-2 border border-gray-700 whitespace-nowrap">Author</th>
-                        <th class="p-2 border border-gray-700 whitespace-nowrap">ISBN</th>
-                        <th class="p-2 border border-gray-700 whitespace-nowrap">Status</th>
-                        <th class="p-2 border border-gray-700 whitespace-nowrap">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="bookTable"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="bookModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-96">
-            <h2 class="text-2xl font-bold mb-4" id="modalTitle">Add a New Book</h2>
-            <form id="bookForm">
-                <input type="hidden" id="editIndex" value="" />
-                <div class="mb-3">
-                    <label for="title" class="block text-sm text-gray-400 mb-1">Title</label>
-                    <input type="text" id="title" placeholder="Enter book title"
-                        class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full text-sm" required />
-                </div>
-                <div class="mb-3">
-                    <label for="author" class="block text-sm text-gray-400 mb-1">Author</label>
-                    <input type="text" id="author" placeholder="Enter author name"
-                        class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full text-sm" required />
-                </div>
-                <div class="mb-3">
-                    <label for="isbn" class="block text-sm text-gray-400 mb-1">ISBN</label>
-                    <input type="number" id="isbn" placeholder="Enter ISBN number"
-                        class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full text-sm" required />
-                </div>
-                <div class="mb-3">
-                    <label for="status" class="block text-sm text-gray-400 mb-1">Status</label>
-                    <select id="status"
-                        class="p-2 bg-gray-800 text-white border border-gray-700 rounded w-full text-sm">
-                        <option value="Available">Available</option>
-                        <option value="Unavailable">Unavailable</option>
-                    </select>
-                </div>
-                <div class="pt-6">
-                    <div class="row">
-                        <button type="submit"
-                            class="px-4 py-2 bg-white text-black font-medium rounded hover:bg-gray-300 w-full text-sm">
-                            Save
-                        </button>
-                    </div>
-                    <div class="row pt-3">
-                        <button type="button" id="closeModal"
-                            class="px-4 py-2 text-white hover:bg-gray-800 rounded w-full text-sm">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="script.js">
-    </script>
 </body>
-
 </html>
