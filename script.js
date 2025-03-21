@@ -1,159 +1,373 @@
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'bg-white text-black px-4 py-2 rounded-md shadow-lg transition-opacity duration-300';
-    toast.textContent = message;
-
-    document.getElementById('toastContainer').appendChild(toast);
-
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-    }, 2000);
+class Book {
+    constructor(id, title, author, isbn, status, genre) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.isbn = isbn;
+        this.status = status;
+        this.genre = genre;
+    }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    const totalBooks = document.getElementById("totalBooks");
-    const availableBooks = document.getElementById("availableBooks");
-    const unavailableBooks = document.getElementById("unavailableBooks");
+class UI {
+    static displayBooks() {
+        const books = Store.getBooks();
+        const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const filterGenre = document.getElementById('filterGenre')?.value || 'All';
+        const sortBy = document.getElementById('sortBy')?.value || 'title';
+        
+        let filteredBooks = books.filter(book => {
+            const matchesSearch = 
+                book.title.toLowerCase().includes(searchQuery) ||
+                book.author.toLowerCase().includes(searchQuery) ||
+                book.isbn.toLowerCase().includes(searchQuery);
+            
+            const matchesGenre = filterGenre === 'All' || book.genre === filterGenre;
+            
+            return matchesSearch && matchesGenre;
+        });
 
-    const books = JSON.parse(localStorage.getItem("books")) || [];
+        filteredBooks.sort((a, b) => {
+            const valueA = a[sortBy].toLowerCase();
+            const valueB = b[sortBy].toLowerCase();
+            return valueA.localeCompare(valueB);
+        });
 
-    function updateDashboard() {
-        let available = 0;
-        let unavailable = 0;
-
-        for (let i = 0; i < books.length; i++) {
-            if (books[i].status === "Available") {
-                available++;
-            } else {
-                unavailable++;
-            }
-        }
-
-        totalBooks.textContent = books.length;
-        availableBooks.textContent = available;
-        unavailableBooks.textContent = unavailable;
-    }
-
-    updateDashboard();
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    const bookForm = document.getElementById("bookForm");
-    const bookTable = document.getElementById("bookTable");
-    const searchInput = document.getElementById("search");
-    const bookModal = document.getElementById("bookModal");
-    const openModal = document.getElementById("openModal");
-    const closeModal = document.getElementById("closeModal");
-    const modalTitle = document.getElementById("modalTitle");
-    const editIndex = document.getElementById("editIndex");
-    const statusFilter = document.getElementById("statusFilter");
-
-    const books = JSON.parse(localStorage.getItem("books")) || [];
-
-    function renderBooks() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const filterStatus = statusFilter.value;
-
-        bookTable.innerHTML = "";
-
-        for (let i = 0; i < books.length; i++) {
-            const book = books[i];
-            const matchesSearch = book.title.toLowerCase().includes(searchTerm) ||
-                book.author.toLowerCase().includes(searchTerm) ||
-                book.isbn.includes(searchTerm);
-            const matchesStatus = filterStatus === 'all' || book.status === filterStatus;
-
-            if (matchesSearch && matchesStatus) {
-                const row = document.createElement("tr");
-                row.classList.add("hover:bg-gray-700");
-
-                const statusClass = book.status === "Available"
-                    ? "bg-green-900/50 text-green-400"
-                    : "bg-red-900/50 text-red-400";
-
-                row.innerHTML = `
-            <td class="p-2 border border-gray-700 whitespace-nowrap">${book.title}</td>
-            <td class="p-2 border border-gray-700 whitespace-nowrap">${book.author}</td>
-            <td class="p-2 border border-gray-700 whitespace-nowrap">${book.isbn}</td>
-            <td class="p-2 border border-gray-700 whitespace-nowrap">
-              <span class="px-2 py-1 rounded-full ${statusClass} text-sm font-medium">
-                ${book.status}
-              </span>
-            </td>
-            <td class="p-2 border border-gray-700 whitespace-nowrap">
-              <div class="flex justify-center gap-2">
-                <button onclick="editBook(${i})" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button onclick="deleteBook(${i})" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </td>
-          `;
-                bookTable.appendChild(row);
-            }
-        }
-    }
-
-    bookForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        const title = document.getElementById("title").value;
-        const author = document.getElementById("author").value;
-        const isbn = document.getElementById("isbn").value;
-        const status = document.getElementById("status").value;
-
-        if (editIndex.value === "") {
-            books.push({ title, author, isbn, status });
-            showToast('Book added successfully!');
+        const bookList = document.querySelector('#bookList');
+        const emptyState = document.getElementById('emptyState');
+        bookList.innerHTML = '';
+        
+        if (filteredBooks.length === 0) {
+            emptyState?.classList.remove('hidden');
         } else {
-            books[editIndex.value] = { title, author, isbn, status };
-            showToast('Book updated successfully!');
+            emptyState?.classList.add('hidden');
+            filteredBooks.forEach(book => UI.addBookToList(book));
         }
-        localStorage.setItem("books", JSON.stringify(books));
 
-        bookModal.classList.add("hidden");
-        bookForm.reset();
-        editIndex.value = "";
+        UI.updateStats();
+        UI.updateTableCount(filteredBooks.length);
+    }
 
+    static addBookToList(book) {
+        const list = document.querySelector('#bookList');
+        const row = document.createElement('tr');
+        row.className = 'opacity-0 transform translate-y-2 transition-all duration-300';
+        row.innerHTML = `
+            <td class="px-4 py-2 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                        📖
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm font-medium text-slate-900">${book.title}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+                <div class="text-sm text-slate-900">${book.author}</div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-50 text-purple-700">
+                    ${book.genre}
+                </span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+                <div class="text-sm text-slate-600">${book.isbn}</div>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap">
+                <span class="px-2 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${
+                    book.status === 'Available' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-amber-100 text-red-800'
+                }">
+                    ${book.status}
+           </span>
+            </td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm font-medium space-x-2">
+                <button onclick="openEditModal('${book.id}')" class="text-blue-600 hover:text-blue-900 transition-colors">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit
+                    </span>
+                </button>
+                <button onclick="UI.deleteBook(this)" data-id="${book.id}" class="text-red-600 hover:text-red-900 transition-colors">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Delete
+                    </span>
+                </button>
+            </td>
+        `;
+        list.appendChild(row);
         setTimeout(() => {
-            location.reload();
-        }, 1500);
-    });
+            row.classList.remove('opacity-0', 'translate-y-2');
+        }, 50);
+    }
 
-    window.editBook = function (index) {
-        const book = books[index];
-        document.getElementById("title").value = book.title;
-        document.getElementById("author").value = book.author;
-        document.getElementById("isbn").value = book.isbn;
-        document.getElementById("status").value = book.status;
-        editIndex.value = index;
-        modalTitle.textContent = "Edit Book";
-        bookModal.classList.remove("hidden");
-    };
-
-    window.deleteBook = function (index) {
-        if (confirm("Are you sure you want to delete this book?")) {
-            books.splice(index, 1);
-            localStorage.setItem("books", JSON.stringify(books));
-            showToast('Book deleted successfully!');
-            renderBooks();
-
+    static deleteBook(el) {
+        if (confirm('Are you sure you want to delete this book?')) {
+            const row = el.parentElement.parentElement;
+            const id = el.getAttribute('data-id');
+            
+            row.classList.add('opacity-0', 'translate-y-2');
+            
             setTimeout(() => {
-                location.reload();
-            }, 1500);
+                row.remove();
+                Store.removeBook(id);
+                UI.showToast('Book removed successfully', 'success');
+                UI.updateStats();
+            }, 300);
         }
+    }
+
+    static clearFields() {
+        document.querySelector('#title').value = '';
+        document.querySelector('#author').value = '';
+        document.querySelector('#isbn').value = '';
+        document.querySelector('#status').value = 'Available';
+        document.querySelector('#genre').value = 'Fiction';
+    }
+
+    static showToast(message, type = 'success') {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: 'right',
+            className: "rounded-lg",
+            style: {
+                background: type === 'success' 
+                    ? 'linear-gradient(to right, #059669, #10B981)' 
+                    : 'linear-gradient(to right, #DC2626, #EF4444)',
+            },
+            stopOnFocus: true,
+        }).showToast();
+    }
+
+    static updateBook(book) {
+        const books = Store.getBooks();
+        const updatedBooks = books.map(b => b.id === book.id ? book : b);
+        localStorage.setItem('books', JSON.stringify(updatedBooks));
+        UI.showToast('Book updated successfully', 'success');
+        UI.displayBooks();
+    }
+
+    static updateStats() {
+        const books = Store.getBooks();
+        const totalBooks = books.length;
+        const availableBooks = books.filter(book => book.status === 'Available').length;
+        const unavailableBooks = books.filter(book => book.status === 'Unavailable').length;
+        const uniqueGenres = new Set(books.map(book => book.genre)).size;
+
+        const elements = {
+            totalBooks: document.getElementById('totalBooks'),
+            availableBooks: document.getElementById('availableBooks'),
+            unavailableBooks: document.getElementById('unavailableBooks'),
+            genreCount: document.getElementById('genreCount'),
+            tableCount: document.getElementById('tableCount')
+        };
+
+        if (elements.totalBooks) UI.animateNumber('totalBooks', totalBooks);
+        if (elements.availableBooks) UI.animateNumber('availableBooks', availableBooks);
+        if (elements.unavailableBooks) UI.animateNumber('unavailableBooks', unavailableBooks);
+        if (elements.genreCount) UI.animateNumber('genreCount', uniqueGenres);
+        if (elements.tableCount) {
+            const visibleBooks = document.querySelectorAll('#bookList tr').length;
+            UI.animateNumber('tableCount', visibleBooks);
+        }
+    }
+
+    static animateNumber(elementId, target) {
+        const element = document.getElementById(elementId);
+        if (!element) return; 
+
+        const start = parseInt(element.innerText) || 0;
+        const duration = 1000;
+        const steps = 60;
+        const increment = (target - start) / steps;
+        let current = start;
+        let step = 0;
+
+        const animation = setInterval(() => {
+            step++;
+            current += increment;
+            if (element) { 
+                element.innerText = Math.round(current);
+            }
+
+            if (step >= steps || !element) {
+                if (element) element.innerText = target;
+                clearInterval(animation);
+            }
+        }, duration / steps);
+    }
+
+    static showActionResult(element, success = true) {
+        element.classList.add('relative', 'overflow-hidden');
+        
+        const animation = document.createElement('div');
+        animation.className = `absolute inset-0 ${success ? 'bg-green-50' : 'bg-red-50'} opacity-0 transition-opacity duration-500`;
+        
+        element.appendChild(animation);
+        requestAnimationFrame(() => {
+            animation.classList.add('opacity-100');
+            setTimeout(() => {
+                animation.classList.remove('opacity-100');
+                setTimeout(() => animation.remove(), 500);
+            }, 1000);
+        });
+    }
+
+    static updateTableCount(count) {
+        const tableCount = document.getElementById('tableCount');
+        if (tableCount) {
+            tableCount.textContent = count;
+        }
+    }
+
+    static setupEventListeners() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce(() => UI.displayBooks(), 300));
+        }
+
+        const filterGenre = document.getElementById('filterGenre');
+        const sortBy = document.getElementById('sortBy');
+        
+        if (filterGenre) {
+            filterGenre.addEventListener('change', () => UI.displayBooks());
+        }
+        
+        if (sortBy) {
+            sortBy.addEventListener('change', () => UI.displayBooks());
+        }
+    }
+}
+
+class Store {
+    static getBooks() {
+        let books;
+        if (localStorage.getItem('books') === null) {
+            books = [];
+        } else {
+            books = JSON.parse(localStorage.getItem('books'));
+        }
+        return books;
+    }
+
+    static addBook(book) {
+        const books = Store.getBooks();
+        books.push(book);
+        localStorage.setItem('books', JSON.stringify(books));
+    }
+
+    static removeBook(id) {
+        const books = Store.getBooks();
+        const updatedBooks = books.filter(book => book.id !== id);
+        localStorage.setItem('books', JSON.stringify(updatedBooks));
+    }
+
+    static getBookById(id) {
+        const books = Store.getBooks();
+        return books.find(book => book.id === id);
+    }
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
     };
+}
 
-    openModal.addEventListener("click", function () {
-        modalTitle.textContent = "Add a New Book";
-        bookForm.reset();
-        editIndex.value = "";
-        bookModal.classList.remove("hidden");
-    });
-
-    closeModal.addEventListener("click", function () {
-        bookModal.classList.add("hidden");
-    });
-
-    statusFilter.addEventListener("change", renderBooks);
-    searchInput.addEventListener("input", renderBooks);
-    renderBooks();
+document.addEventListener('DOMContentLoaded', () => {
+    UI.displayBooks();
+    UI.setupEventListeners();
 });
+
+document.querySelector('#bookForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const title = document.querySelector('#title').value.trim();
+    const author = document.querySelector('#author').value.trim();
+    const isbn = document.querySelector('#isbn').value.trim();
+    const status = document.querySelector('#status').value;
+    const genre = document.querySelector('#genre').value;
+
+    if (title === '' || author === '' || isbn === '') {
+        UI.showToast('Please fill in all fields', 'error');
+        return;
+    }
+
+    const books = Store.getBooks();
+    if (books.some(book => book.isbn === isbn)) {
+        UI.showToast('A book with this ISBN already exists', 'error');
+        return;
+    }
+
+    const id = Date.now().toString();
+    const book = new Book(id, title, author, isbn, status, genre);
+    UI.addBookToList(book);
+    Store.addBook(book);
+    UI.clearFields();
+    UI.showToast('Book added successfully', 'success');
+    UI.updateStats();
+});
+
+function openEditModal(id) {
+    const modal = document.getElementById('editBookModal');
+    if (!modal) return;
+
+    const book = Store.getBookById(id);
+    if (!book) return;
+    
+    document.getElementById('editBookId').value = book.id;
+    document.getElementById('editTitle').value = book.title;
+    document.getElementById('editAuthor').value = book.author;
+    document.getElementById('editIsbn').value = book.isbn;
+    document.getElementById('editStatus').value = book.status;
+    document.getElementById('editGenre').value = book.genre || 'Fiction';
+    
+    modal.classList.remove('hidden');
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editBookModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.getElementById('editBookForm').reset();
+    }
+}
+
+document.getElementById('saveEditButton')?.addEventListener('click', () => {
+    const id = document.getElementById('editBookId').value;
+    const title = document.getElementById('editTitle').value.trim();
+    const author = document.getElementById('editAuthor').value.trim();
+    const isbn = document.getElementById('editIsbn').value.trim();
+    const status = document.getElementById('editStatus').value;
+    const genre = document.getElementById('editGenre').value;
+
+    if (!title || !author || !isbn) {
+        UI.showToast('Please fill in all fields', 'error');
+        return;
+    }
+
+    const books = Store.getBooks();
+    if (books.some(book => book.isbn === isbn && book.id !== id)) {
+        UI.showToast('A book with this ISBN already exists', 'error');
+        return;
+    }
+
+    const book = new Book(id, title, author, isbn, status, genre);
+    UI.updateBook(book);
+    closeEditModal();
+}); 
